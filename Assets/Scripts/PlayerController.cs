@@ -1,6 +1,7 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.AI;
 
+[RequireComponent(typeof(Rigidbody), typeof(NavMesh))]
 public class PlayerController : MonoBehaviour
 {
     private KeyAction move, jump;
@@ -17,6 +18,8 @@ public class PlayerController : MonoBehaviour
 
     private new Rigidbody rigidbody;
 
+    // private NavMeshAgent navMesh;
+
     private void Awake()
     {
         move = new KeyAction(KeyInputMode.KeyDown, KeyCode.Mouse0, Move);
@@ -27,35 +30,36 @@ public class PlayerController : MonoBehaviour
 
         target = transform.position;
         rigidbody = GetComponent<Rigidbody>();
-    }
-
-    private Vector3 GetProjection(Vector3 position)
-    {
-        return new Vector3(position.x, 0, position.z);
+        // navMesh = GetComponent<NavMeshAgent>();
     }
 
     private void FixedUpdate()
     {
         float delta = Time.fixedDeltaTime;
 
-        Vector3 projection = GetProjection(target - transform.position);
+        Vector3 projection = Consts.GetProjection(target - transform.position);
         if (projection.magnitude > 1)
         {
             transform.rotation = Quaternion.LookRotation(projection);
             transform.Translate(Vector3.forward * delta * speed);
         }
+        // navMesh.SetDestination(target);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         if (isJumping && collision.collider.name.ToLower().Contains("road"))
+        {
+            // navMesh.enabled = true;
             isJumping = false;
+        }
     }
 
     private void Jump()
     {
         if (!isJumping)
         {
+            // navMesh.enabled = false;
             rigidbody.AddForce(Vector3.up * 20, ForceMode.VelocityChange);
             isJumping = true;
         }
@@ -79,7 +83,7 @@ public class PlayerController : MonoBehaviour
 
     private void Hit(Vector3 position)
     {
-        Vector3 direction = GetProjection(position - transform.position);
+        Vector3 direction = Consts.GetProjection(position - transform.position);
         Instantiate(projectilePrefab, transform.position + Vector3.up * 1.5f, Quaternion.LookRotation(direction));
     }
 }

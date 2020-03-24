@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using UnityEngine.AI;
 
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Rigidbody), typeof(NavMesh))]
 public class CarController : MonoBehaviour
 {
     private new Rigidbody rigidbody;
@@ -32,10 +33,13 @@ public class CarController : MonoBehaviour
     public Transform centerOfMass;
 
     public GameObject explosionPrefab;
+    public PlayerController Target { get; set; }
+    public NavMeshAgent NavMeshAgent { get; set; }
 
-    private void Start()
+    private void Awake()
     {
         rigidbody = GetComponent<Rigidbody>();
+        NavMeshAgent = GetComponent<NavMeshAgent>();
 
         if (centerOfMass)
             rigidbody.centerOfMass = centerOfMass.localPosition;
@@ -76,17 +80,22 @@ public class CarController : MonoBehaviour
     {
         /*Move(InputManager.Instance.GetAxis(InputManager.VERTICAL_AXIS),
             InputManager.Instance.GetAxis(InputManager.HORIZONTAL_AXIS));*/
-        UpdateWheels();
+        // UpdateWheels();
 
         if (prevVelocity - rigidbody.velocity.magnitude > 10)
             Destroy();
         else
             prevVelocity = rigidbody.velocity.magnitude;
+
+        if (NavMeshAgent && Target)
+            NavMeshAgent.SetDestination(Target.transform.position);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.collider.GetComponent<ProjectileMoveScript>())
+        if (collision.collider.GetComponent<PlayerController>()
+            || collision.collider.GetComponent<ProjectileMoveScript>())
+
             Destroy();
     }
 

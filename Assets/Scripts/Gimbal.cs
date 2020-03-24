@@ -31,11 +31,11 @@ public class Gimbal : Manager<Gimbal>
             mouseY -= InputManager.Instance.GetAxis(InputManager.MOUSE_Y) * m_rotationSpeed * delta;
 
             transform.position = target.transform.position;
-            if (mouseY < -30 /*- smoothScale.z * 3*/)
-                mouseY = -30 /*- smoothScale.z * 3*/;
+            if (mouseY < 10 /*- smoothScale.z * 3*/)
+                mouseY = 10 /*- smoothScale.z * 3*/;
             else
-            if (mouseY > 45)
-                mouseY = 45;
+            if (mouseY > 20)
+                mouseY = 20;
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(mouseY, mouseX, 0),
                 m_speed * delta);
 
