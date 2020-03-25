@@ -84,7 +84,7 @@ public class SimsHealthBar : HealthBar
 
     private void FixedUpdate()
     {
-        float delta = Time.deltaTime * 30;
+        float delta = Time.fixedDeltaTime * 30;
 
         transform.position = Vector3.Lerp(transform.position, player.transform.position + Vector3.up * offset, delta);
         transform.Rotate(Vector3.up * delta);
