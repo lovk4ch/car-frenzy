@@ -5,17 +5,18 @@ public class Gimbal : Manager<Gimbal>
     private static Vector3 smoothScale;
     private float mouseX, mouseY;
 
+    private GameObject target = null;
+
     [SerializeField]
     private float m_rotationSpeed = 100f;
     [SerializeField]
     private float m_speed = 3f;
     [SerializeField]
-    private GameObject target = null;
-    [SerializeField]
     private Transform cameraHolder = null;
 
     private void Awake()
     {
+        target = LevelManager.Instance.Player.gameObject;
         smoothScale = cameraHolder.localPosition;
         // Cursor.visible = false;
         // Cursor.lockState = CursorLockMode.Locked;
@@ -34,13 +35,13 @@ public class Gimbal : Manager<Gimbal>
             if (mouseY < 10 /*- smoothScale.z * 3*/)
                 mouseY = 10 /*- smoothScale.z * 3*/;
             else
-            if (mouseY > 20)
-                mouseY = 20;
+            if (mouseY > 30)
+                mouseY = 30;
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(mouseY, mouseX, 0),
                 m_speed * delta);
 
             float change = InputManager.Instance.GetWheel() / 2;
-            if (change != 0 && smoothScale.z + change <= -10 && smoothScale.z + change >= -20)
+            if (change != 0 && smoothScale.z + change <= -10 && smoothScale.z + change >= -30)
             {
                 smoothScale += new Vector3(0, 0, change);
             }

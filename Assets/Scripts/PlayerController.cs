@@ -4,68 +4,95 @@ using UnityEngine.AI;
 [RequireComponent(typeof(Rigidbody), typeof(NavMesh))]
 public class PlayerController : MonoBehaviour
 {
-    private KeyAction move, jump;
-    private Vector3 target;
+    [SerializeField]
+    private ProjectileMoveScript projectilePrefab = null;
 
-    private bool isJumping;
+    [SerializeField]
+    private HealthBar healthBarPrefab = null;
+
+    [SerializeField]
+    private ParticleSystem aimPrefab = null;
 
     [SerializeField]
     [Range(3, 30)]
     private float speed = 10;
 
-    [SerializeField]
-    private GameObject projectilePrefab = null;
+    private KeyAction move, jump;
+    private Vector3 waypoint;
+
+    private bool isJumping;
 
     private new Rigidbody rigidbody;
 
-    // private NavMeshAgent navMesh;
+    private HealthBar healthBar = null;
+    private float maxHealth = 100, health;
+
+    public float HealthPercentage => health / maxHealth;
 
     private void Awake()
     {
-        move = new KeyAction(KeyInputMode.KeyDown, KeyCode.Mouse0, Move);
+        move = new KeyAction(KeyInputMode.KeyDown, KeyCode.Mouse0, Action);
         InputManager.Instance.AddKeyAction(move);
 
         jump = new KeyAction(KeyInputMode.KeyDown, KeyCode.Space, Jump);
         InputManager.Instance.AddKeyAction(jump);
 
-        target = transform.position;
+        health = maxHealth;
+        waypoint = transform.position;
         rigidbody = GetComponent<Rigidbody>();
-        // navMesh = GetComponent<NavMeshAgent>();
+
+        healthBar = Instantiate(healthBarPrefab) as HealthBar;
+        healthBar.Initialize(this);
+    }
+
+    private void OnDestroy()
+    {
+        if (healthBar)
+            Destroy(healthBar.gameObject);
     }
 
     private void FixedUpdate()
     {
         float delta = Time.fixedDeltaTime;
 
-        Vector3 projection = Consts.GetProjection(target - transform.position);
+        Vector3 projection = Consts.GetProjection(waypoint - transform.position);
         if (projection.magnitude > 1)
         {
             transform.rotation = Quaternion.LookRotation(projection);
             transform.Translate(Vector3.forward * delta * speed);
         }
-        // navMesh.SetDestination(target);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         if (isJumping && collision.collider.name.ToLower().Contains("road"))
         {
-            // navMesh.enabled = true;
             isJumping = false;
         }
+        else if (collision.collider.GetComponent<CarController>() is CarController car)
+        {
+            Hit(car.Damage);
+        }
+    }
+
+    private void Hit(float damage)
+    {
+        if (damage < health)
+            health -= damage;
+        else
+            health = 0;
     }
 
     private void Jump()
     {
         if (!isJumping)
         {
-            // navMesh.enabled = false;
             rigidbody.AddForce(Vector3.up * 20, ForceMode.VelocityChange);
             isJumping = true;
         }
     }
 
-    private void Move()
+    private void Action()
     {
         Ray MyRay;
         MyRay = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -74,16 +101,22 @@ public class PlayerController : MonoBehaviour
             if (hit.collider)
             {
                 if (hit.collider.name.ToLower().Contains("road"))
-                    target = hit.point;
-                else if (hit.collider.name.ToLower().Contains("seperate"))
-                    Hit(hit.point);
+                {
+                    waypoint = hit.point;
+                    Instantiate(aimPrefab, waypoint, Quaternion.identity);
+                }
+                else if (hit.collider.GetComponent<CarController>() is CarController car)
+                    Attack(car);
             } 
         }
     }
 
-    private void Hit(Vector3 position)
+    private void Attack(CarController car)
     {
-        Vector3 direction = Consts.GetProjection(position - transform.position);
-        Instantiate(projectilePrefab, transform.position + Vector3.up * 1.5f, Quaternion.LookRotation(direction));
+        Vector3 direction = car.transform.position - transform.position;
+        Vector3 startPos = transform.position + Vector3.up * 1.5f;
+        ProjectileMoveScript pms = Instantiate(projectilePrefab, startPos, Quaternion.LookRotation(direction));
+
+        pms.SetTarget(car);
     }
 }
