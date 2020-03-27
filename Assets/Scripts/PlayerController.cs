@@ -4,6 +4,21 @@ using UnityEngine.AI;
 [RequireComponent(typeof(Rigidbody), typeof(NavMesh))]
 public class PlayerController : MonoBehaviour
 {
+    #region Animations
+
+    private const int stateIdle = 0, stateRun = 1, stateJump = 2, stateDeath = 3;
+    private const string actionStateName = "actionState";
+
+    private Animator animator;
+
+    private int actionState
+    {
+        get => animator.GetInteger(actionStateName);
+        set => animator.SetInteger(actionStateName, value);
+    }
+
+    #endregion
+
     [SerializeField]
     private ProjectileMoveScript projectilePrefab = null;
 
@@ -14,19 +29,22 @@ public class PlayerController : MonoBehaviour
     private ParticleSystem aimPrefab = null;
 
     [SerializeField]
+    [Range(5, 30)]
+    private float jumpPower = 15;
+
+    [SerializeField]
     [Range(3, 30)]
     private float speed = 10;
 
     private KeyAction move, jump;
     private Vector3 waypoint;
 
-    private bool isJumping;
-
     private new Rigidbody rigidbody;
 
     private HealthBar healthBar = null;
     private float maxHealth = 100, health;
 
+    public bool IsAlive => HealthPercentage > 0;
     public float HealthPercentage => health / maxHealth;
 
     private void Awake()
@@ -34,9 +52,10 @@ public class PlayerController : MonoBehaviour
         move = new KeyAction(KeyInputMode.KeyDown, KeyCode.Mouse0, Action);
         InputManager.Instance.AddKeyAction(move);
 
-        jump = new KeyAction(KeyInputMode.KeyDown, KeyCode.Space, Jump);
+        jump = new KeyAction(KeyInputMode.KeyDown, KeyCode.Mouse1, Jump);
         InputManager.Instance.AddKeyAction(jump);
 
+        animator = GetComponent<Animator>();
         health = maxHealth;
         waypoint = transform.position;
         rigidbody = GetComponent<Rigidbody>();
@@ -56,22 +75,28 @@ public class PlayerController : MonoBehaviour
         float delta = Time.fixedDeltaTime;
 
         Vector3 projection = Consts.GetProjection(waypoint - transform.position);
-        if (projection.magnitude > 1)
+        if (actionState == stateRun || actionState == stateJump)
         {
-            transform.rotation = Quaternion.LookRotation(projection);
-            transform.Translate(Vector3.forward * delta * speed);
+            if (projection.magnitude > 1)
+            {
+                transform.rotation = Quaternion.LookRotation(projection);
+                transform.Translate(Vector3.forward * delta * speed);
+            }
+            else if (actionState == stateRun)
+                actionState = stateIdle;
         }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (isJumping && collision.collider.name.ToLower().Contains("road"))
+        if (actionState == stateJump && collision.collider.name.ToLower().Contains("road"))
         {
-            isJumping = false;
+            actionState = stateRun;
         }
         else if (collision.collider.GetComponent<CarController>() is CarController car)
         {
-            Hit(car.Damage);
+            if (Mathf.Abs(transform.position.y - car.transform.position.y) < 2.3f)
+                Hit(car.damage);
         }
     }
 
@@ -80,15 +105,19 @@ public class PlayerController : MonoBehaviour
         if (damage < health)
             health -= damage;
         else
+        {
             health = 0;
+            actionState = stateDeath;
+            InputManager.Instance.RemoveKeyActions(this);
+        }
     }
 
     private void Jump()
     {
-        if (!isJumping)
+        if (actionState != stateJump)
         {
-            rigidbody.AddForce(Vector3.up * 20, ForceMode.VelocityChange);
-            isJumping = true;
+            rigidbody.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
+            actionState = stateJump;
         }
     }
 
@@ -102,8 +131,12 @@ public class PlayerController : MonoBehaviour
             {
                 if (hit.collider.name.ToLower().Contains("road"))
                 {
-                    waypoint = hit.point;
-                    Instantiate(aimPrefab, waypoint, Quaternion.identity);
+                    if (actionState != stateJump)
+                    {
+                        actionState = stateRun;
+                        waypoint = hit.point;
+                        Instantiate(aimPrefab, waypoint, Quaternion.identity);
+                    }
                 }
                 else if (hit.collider.GetComponent<CarController>() is CarController car)
                     Attack(car);

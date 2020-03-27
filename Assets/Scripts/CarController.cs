@@ -10,6 +10,9 @@ public class CarController : MonoBehaviour
     [SerializeField]
     private Transform centerOfMass = null;
 
+    [Range(0, 100)]
+    public float damage = 10;
+
     private new Rigidbody rigidbody;
     private float prevVelocity;
 
@@ -38,7 +41,7 @@ public class CarController : MonoBehaviour
 
     public PlayerController Target { get; set; }
     public NavMeshAgent NavMeshAgent { get; set; }
-    public float Damage => 10;
+    
     public Vector3 position => centerOfMass.position;
 
     private void Awake()
@@ -88,7 +91,7 @@ public class CarController : MonoBehaviour
         else
             prevVelocity = rigidbody.velocity.magnitude;
 
-        if (NavMeshAgent.isOnNavMesh && Target.HealthPercentage > 0)
+        if (NavMeshAgent.isOnNavMesh && Target.IsAlive)
             NavMeshAgent.SetDestination(Target.transform.position);
     }
 
@@ -102,9 +105,12 @@ public class CarController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.collider.GetComponent<PlayerController>()
-            || collision.collider.GetComponent<ProjectileMoveScript>())
-
+        if (collision.collider.GetComponent<ProjectileMoveScript>())
             Destroy();
+        else if (collision.collider.GetComponent<PlayerController>() is PlayerController player)
+        {
+            // if (player.IsAlive)
+                Destroy();
+        }
     }
-       }
+}

@@ -41,6 +41,7 @@ public class LevelManager : Manager<LevelManager>
             CarController car = Instantiate(carPrefabs[i], position, Quaternion.identity);
             Instantiate(teleport, position, Quaternion.identity);
             car.Target = Player;
+            car.NavMeshAgent.avoidancePriority = cars.Count;
             cars.Add(car);
         }
     }

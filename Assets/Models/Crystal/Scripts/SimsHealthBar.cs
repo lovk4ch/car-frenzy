@@ -78,13 +78,11 @@ public class SimsHealthBar : HealthBar
             else
                 SetColor(Color.Lerp(deadColor, zeroColor, unitHealth * 5));
         }
-
-        
     }
 
     private void FixedUpdate()
     {
-        float delta = Time.fixedDeltaTime * 30;
+        float delta = Time.fixedDeltaTime * 100;
 
         transform.position = Vector3.Lerp(transform.position, player.transform.position + Vector3.up * offset, delta);
         transform.Rotate(Vector3.up * delta);

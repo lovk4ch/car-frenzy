@@ -1,5 +1,7 @@
 fileFormatVersion: 2
 guid: 8a591aaef68efa443864ffb84b70dab1
+labels:
+- Vehicle
 PrefabImporter:
   externalObjects: {}
   userData: 

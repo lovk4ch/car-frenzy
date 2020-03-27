@@ -4879,6 +4879,6 @@ MonoBehaviour:
   fullColor: {r: 0, g: 1, b: 0, a: 1}
   middColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   zeroColor: {r: 1, g: 0, b: 0, a: 1}
-  unitController: {fileID: 0}
   renderer: {fileID: 8343351700139911239}
   sparks: {fileID: 8051354862742990401}
+  deadColor: {r: 0, g: 0, b: 0, a: 1}

@@ -113,7 +113,7 @@ NavMeshAgent:
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 0
   m_AutoRepath: 1
-  m_Height: 3
+  m_Height: 2.5
   m_BaseOffset: 0
   m_WalkableMask: 1
   m_ObstacleAvoidanceType: 4
@@ -129,6 +129,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02c878b4756375140a2e0d04fdc352ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  explosionPrefab: {fileID: 100010, guid: 645413a00f7bd0242bbd6d0e5eb6f439, type: 3}
+  centerOfMass: {fileID: 9165851762956389010}
   WColForward:
   - {fileID: 0}
   - {fileID: 0}
@@ -141,13 +143,11 @@ MonoBehaviour:
   wheelsB:
   - {fileID: 0}
   - {fileID: 0}
-  wheelOffset: 0.1
-  wheelRadius: 0.13
   maxSteer: 30
   maxAccel: 1500
   maxBrake: 1500
-  centerOfMass: {fileID: 9165851762956389010}
-  explosionPrefab: {fileID: 100010, guid: 645413a00f7bd0242bbd6d0e5eb6f439, type: 3}
+  wheelOffset: 0.1
+  wheelRadius: 0.13
 --- !u!1 &8063716208292645998
 GameObject:
   m_ObjectHideFlags: 0

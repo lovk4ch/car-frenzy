@@ -518,6 +518,11 @@ PrefabInstance:
       propertyPath: wheelsB.Array.data[1]
       value: 
       objectReference: {fileID: 300455320003078917}
+    - target: {fileID: 2082101617318671217, guid: d79442c3517262a4ab3cf1d14443d698,
+        type: 3}
+      propertyPath: damage
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 4689052882828495442, guid: d79442c3517262a4ab3cf1d14443d698,
         type: 3}
       propertyPath: m_Name
