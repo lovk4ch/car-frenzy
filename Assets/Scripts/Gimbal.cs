@@ -32,16 +32,16 @@ public class Gimbal : Manager<Gimbal>
             mouseY -= InputManager.Instance.GetAxis(InputManager.MOUSE_Y) * m_rotationSpeed * delta;
 
             transform.position = target.transform.position;
-            if (mouseY < 0)
+            /*if (mouseY < 0)
                 mouseY = 0;
             else
             if (mouseY > 30)
                 mouseY = 30;
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(mouseY, mouseX, 0),
-                m_speed * delta);
+                m_speed * delta);*/
 
             float change = InputManager.Instance.GetWheel();
-            if (change != 0 && smoothScale.z + change <= -10 && smoothScale.z + change >= -30)
+            if (change != 0 && smoothScale.z + change <= -10 && smoothScale.z + change >= -40)
             {
                 smoothScale += new Vector3(0, 0, change);
             }

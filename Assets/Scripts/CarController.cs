@@ -105,12 +105,6 @@ public class CarController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.collider.GetComponent<ProjectileMoveScript>())
-            Destroy();
-        else if (collision.collider.GetComponent<PlayerController>() is PlayerController player)
-        {
-            // if (player.IsAlive)
-                Destroy();
-        }
+        Destroy();
     }
 }

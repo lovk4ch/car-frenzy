@@ -36,6 +36,10 @@ public class PlayerController : MonoBehaviour
     [Range(3, 30)]
     private float speed = 10;
 
+    [SerializeField]
+    [Range(3, 30)]
+    private float angleSpeed = 10;
+
     private KeyAction move, jump;
     private Vector3 waypoint;
 
@@ -64,12 +68,6 @@ public class PlayerController : MonoBehaviour
         healthBar.Initialize(this);
     }
 
-    private void OnDestroy()
-    {
-        if (healthBar)
-            Destroy(healthBar.gameObject);
-    }
-
     private void FixedUpdate()
     {
         float delta = Time.fixedDeltaTime;
@@ -79,12 +77,18 @@ public class PlayerController : MonoBehaviour
         {
             if (projection.magnitude > 1)
             {
-                transform.rotation = Quaternion.LookRotation(projection);
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(projection), delta * angleSpeed);
                 transform.Translate(Vector3.forward * delta * speed);
             }
             else if (actionState == stateRun)
                 actionState = stateIdle;
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (healthBar)
+            Destroy(healthBar.gameObject);
     }
 
     private void OnCollisionEnter(Collision collision)
